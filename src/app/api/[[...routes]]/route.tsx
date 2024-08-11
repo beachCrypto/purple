@@ -68,7 +68,7 @@ app.frame('/', (c) => {
       </div>
     ),
     intents: [
-      <Button.Link href="https://nouns.build/dao/base/0x8de71d80eE2C4700bC9D4F8031a2504Ca93f7088">
+      <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=Purple+is+a+DAO+whose+goal+is+to+proliferate+and+expand+the+Farcaster+protocol+and ecosystem+-+frame+by+%40pichi+and+%40beachcrypto.eth">
         Share
       </Button.Link>,
       ,
