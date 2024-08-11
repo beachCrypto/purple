@@ -21,6 +21,7 @@ const app = new Frog({
       },
     },
   },
+  verify: true,
   title: 'Purple Frames',
   assetsPath: '/',
   basePath: '/api',
