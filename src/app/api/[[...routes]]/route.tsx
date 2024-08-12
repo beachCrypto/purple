@@ -21,7 +21,7 @@ const app = new Frog({
       },
     },
   },
-  verify: true,
+  verify: 'silent',
   title: 'Purple Frames',
   assetsPath: '/',
   basePath: '/api',
@@ -69,7 +69,50 @@ app.frame('/', (c) => {
       </div>
     ),
     intents: [
-      <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=Purple+is+a+DAO+whose+goal+is+to+proliferate+and+expand+the+Farcaster+protocol+and ecosystem+-+frame+by+%40pichi+and+%40beachcrypto">
+      <Button action={`/more`} value="apple">
+        learn about purple dao
+      </Button>,
+    ],
+  });
+});
+
+app.frame('/more', (c) => {
+  const { buttonValue, inputText, status } = c;
+  const fruit = inputText || buttonValue;
+  return c.res({
+    image: (
+      <div
+        style={{
+          alignItems: 'center',
+          background: 'purple',
+          display: 'flex',
+          flexDirection: 'column',
+          flexWrap: 'nowrap',
+          height: '100%',
+          justifyContent: 'center',
+          textAlign: 'center',
+          width: '100%',
+        }}
+      >
+        <div
+          style={{
+            color: 'white',
+            fontSize: 60,
+            fontStyle: 'normal',
+            letterSpacing: '-0.025em',
+            lineHeight: 1.4,
+            marginTop: 30,
+            padding: '0 120px',
+            whiteSpace: 'pre-wrap',
+          }}
+        >
+          Purple’s goal is to proliferate and expand the Farcaster
+          protocol and ecosystem.
+        </div>
+      </div>
+    ),
+    intents: [
+      <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=get+purple+pilled++-+frame+by+%40pichi+and+%40beachcrypto">
         Share
       </Button.Link>,
       ,
