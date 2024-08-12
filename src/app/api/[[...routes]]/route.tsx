@@ -112,7 +112,7 @@ app.frame('/more', (c) => {
       </div>
     ),
     intents: [
-      <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=get+purple+pilled++-+frame+by+%40pichi+and+%40beachcrypto">
+      <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=get+purple+pilled+-+frame+by+%40pichi+and+%40beachcrypto">
         Share
       </Button.Link>,
       ,
