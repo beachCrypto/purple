@@ -116,7 +116,7 @@ app.frame('/more', (c) => {
         Share
       </Button.Link>,
       ,
-      <Button.Link href="https://nouns.build/dao/base/0x8de71d80eE2C4700bC9D4F8031a2504Ca93f7088">
+      <Button.Link href="https://nouns.build/dao/base/0x8de71d80ee2c4700bc9d4f8031a2504ca93f7088?referral=0x83f2af0F0aC4412F118B31f7dd596309B25b34Dd">
         Auction
       </Button.Link>,
     ],
