@@ -182,7 +182,6 @@ app.transaction('/mint', (c) => {
   });
 });
 
-// token id - 610
 // referral - 0x83f2af0F0aC4412F118B31f7dd596309B25b34Dd
 
 devtools(app, { serveStatic });
