@@ -7,10 +7,36 @@ import { devtools } from 'frog/dev';
 import { handle } from 'frog/next';
 import { serveStatic } from 'frog/serve-static';
 import { env } from 'process';
+import { createPublicClient, http, formatEther } from 'viem';
+import { base } from 'viem/chains';
+import { wagmiAbi } from '../../../abi/wagmiAbi';
 
+// Airstack API Token
 export interface Env {
   AIRSTACK_API_TOKEN: string;
 }
+
+// contract variables
+
+let auction: readonly [
+  bigint,
+  bigint,
+  `0x${string}`,
+  number,
+  number,
+  boolean
+];
+
+const client = createPublicClient({
+  chain: base,
+  transport: http(),
+});
+
+let bid: string;
+let bidRaw: bigint;
+let token: string;
+let minBidIncrementBigInt: bigint;
+let minBid: number;
 
 const app = new Frog({
   hub: {
@@ -34,9 +60,15 @@ const app = new Frog({
 
 export const runtime = 'edge';
 
-app.frame('/', (c) => {
+app.frame('/', async (c) => {
   const { buttonValue, inputText, status } = c;
   const fruit = inputText || buttonValue;
+  // 2. Set up your client with desired chain & transport.
+
+  // 3. Consume an action!
+  const blockNumber = await client.getBlockNumber();
+  console.log('blockNumber', blockNumber);
+
   return c.res({
     image: (
       <div
@@ -76,7 +108,34 @@ app.frame('/', (c) => {
   });
 });
 
-app.frame('/more', (c) => {
+app.frame('/more', async (c) => {
+  // Return auction from Purple DAO
+  auction = await client.readContract({
+    address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
+    abi: wagmiAbi,
+    functionName: 'auction',
+  });
+
+  token = auction[0].toString();
+  bidRaw = auction[1];
+  bid = formatEther(auction[1]);
+
+  console.log('auction', auction);
+  console.log('token id', token);
+  console.log('bid', bid);
+
+  minBidIncrementBigInt = await client.readContract({
+    address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
+    abi: wagmiAbi,
+    functionName: 'minBidIncrement',
+  });
+
+  console.log('minBidIncrementBigInt', minBidIncrementBigInt);
+
+  minBid = Number(bid) / Number(minBidIncrementBigInt) + Number(bid);
+
+  console.log('minBid', minBid);
+
   const { buttonValue, inputText, status } = c;
   const fruit = inputText || buttonValue;
   return c.res({
@@ -124,6 +183,7 @@ app.frame('/more', (c) => {
 });
 
 app.frame('/join', (c) => {
+  console.log('bid from join', bid);
   const { buttonValue, inputText, status } = c;
   const fruit = inputText || buttonValue;
   return c.res({
@@ -153,14 +213,15 @@ app.frame('/join', (c) => {
             whiteSpace: 'pre-wrap',
           }}
         >
-          Purple’s goal is to proliferate and expand the Farcaster
-          protocol and ecosystem.
+          {`Current bid: ${bid}`}
         </div>
       </div>
     ),
     intents: [
-      <TextInput placeholder="Value (ETH)" />,
-      <Button.Transaction target={`/mint`}>Mint</Button.Transaction>,
+      <TextInput placeholder={`minimum bid ${minBid.toString()}`} />,
+      <Button.Transaction target={`/mint`}>
+        Place bid
+      </Button.Transaction>,
       <Button action={`/`}>Back</Button>,
     ],
   });
@@ -168,17 +229,19 @@ app.frame('/join', (c) => {
 
 let auctionABI = require('../../../abi/abi.json');
 
-console.log('abi', auctionABI);
+// console.log('abi', auctionABI);
 
 app.transaction('/mint', (c) => {
   // Contract transaction response.
   return c.contract({
     abi: auctionABI,
-    chainId: 'eip155:84532',
-    functionName: 'createBid',
-    value: parseEther('.001'),
-    args: [11],
-    to: '0x03855976fcb91bf23110e2c425dcfb1ba0635b79',
+    chainId: 'eip155:8453',
+    // chainId: 'eip155:84532',
+    functionName: 'createBidWithReferral',
+    value: bidRaw,
+    args: [token, '0x83f2af0f0ac4412f118b31f7dd596309b25b34dd'],
+    // to: '0x03855976fcb91bf23110e2c425dcfb1ba0635b79',
+    to: '0x73Ab6d816FB9FE1714E477C5a70D94E803b56576',
   });
 });
 
