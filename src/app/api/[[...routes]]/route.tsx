@@ -61,14 +61,6 @@ const app = new Frog({
 export const runtime = 'edge';
 
 app.frame('/', async (c) => {
-  const { buttonValue, inputText, status } = c;
-  const fruit = inputText || buttonValue;
-  // 2. Set up your client with desired chain & transport.
-
-  // 3. Consume an action!
-  const blockNumber = await client.getBlockNumber();
-  console.log('blockNumber', blockNumber);
-
   return c.res({
     image: (
       <div
@@ -108,36 +100,7 @@ app.frame('/', async (c) => {
   });
 });
 
-app.frame('/more', async (c) => {
-  // Return auction from Purple DAO
-  auction = await client.readContract({
-    address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
-    abi: wagmiAbi,
-    functionName: 'auction',
-  });
-
-  token = auction[0].toString();
-  bidRaw = auction[1];
-  bid = formatEther(auction[1]);
-
-  console.log('auction', auction);
-  console.log('token id', token);
-  console.log('bid', bid);
-
-  minBidIncrementBigInt = await client.readContract({
-    address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
-    abi: wagmiAbi,
-    functionName: 'minBidIncrement',
-  });
-
-  console.log('minBidIncrementBigInt', minBidIncrementBigInt);
-
-  minBid = Number(bid) / Number(minBidIncrementBigInt) + Number(bid);
-
-  console.log('minBid', minBid);
-
-  const { buttonValue, inputText, status } = c;
-  const fruit = inputText || buttonValue;
+app.frame('/more', (c) => {
   return c.res({
     image: (
       <div
@@ -182,10 +145,26 @@ app.frame('/more', async (c) => {
   });
 });
 
-app.frame('/join', (c) => {
-  console.log('bid from join', bid);
-  const { buttonValue, inputText, status } = c;
-  const fruit = inputText || buttonValue;
+app.frame('/join', async (c) => {
+  // Return auction from Purple DAO
+  auction = await client.readContract({
+    address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
+    abi: wagmiAbi,
+    functionName: 'auction',
+  });
+
+  token = auction[0].toString();
+  bidRaw = auction[1];
+  bid = formatEther(auction[1]);
+
+  minBidIncrementBigInt = await client.readContract({
+    address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
+    abi: wagmiAbi,
+    functionName: 'minBidIncrement',
+  });
+
+  minBid = Number(bid) / Number(minBidIncrementBigInt) + Number(bid);
+
   return c.res({
     image: (
       <div
@@ -243,8 +222,6 @@ app.transaction('/mint', (c) => {
     to: '0x73Ab6d816FB9FE1714E477C5a70D94E803b56576',
   });
 });
-
-// referral - 0x83f2af0F0aC4412F118B31f7dd596309B25b34Dd
 
 devtools(app, { serveStatic });
 
