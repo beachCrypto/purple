@@ -100,7 +100,7 @@ app.frame('/', async (c) => {
   });
 });
 
-app.frame('/more', (c) => {
+app.frame('/more', async (c) => {
   return c.res({
     image: (
       <div
@@ -197,7 +197,7 @@ app.frame('/join', async (c) => {
       </div>
     ),
     intents: [
-      <TextInput placeholder={`minimum bid ${minBid.toString()}`} />,
+      <TextInput placeholder={`${minBid.toString()} ETH or more`} />,
       <Button.Transaction target={`/mint`}>
         Place bid
       </Button.Transaction>,
@@ -207,18 +207,20 @@ app.frame('/join', async (c) => {
 });
 
 app.transaction('/mint', (c) => {
+  let { inputText } = c;
+  // Ensure inputText is not undefined
+  inputText = inputText ?? minBid.toString();
   // Contract transaction response.
   return c.contract({
     abi: wagmiAbi,
     chainId: 'eip155:8453',
     // chainId: 'eip155:84532',
     functionName: 'createBidWithReferral',
-    value: bidRaw,
+    value: BigInt(parseEther(inputText)),
     args: [
       BigInt(token),
       '0x83f2af0f0ac4412f118b31f7dd596309b25b34dd',
     ],
-    // to: '0x03855976fcb91bf23110e2c425dcfb1ba0635b79',
     to: '0x73Ab6d816FB9FE1714E477C5a70D94E803b56576',
   });
 });
