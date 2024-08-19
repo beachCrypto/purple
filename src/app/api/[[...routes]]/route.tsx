@@ -100,7 +100,7 @@ app.frame('/', async (c) => {
   });
 });
 
-app.frame('/more', async (c) => {
+app.frame('/more', (c) => {
   return c.res({
     image: (
       <div
@@ -207,7 +207,6 @@ app.frame('/join', async (c) => {
 });
 
 app.transaction('/mint', (c) => {
-  const { inputText } = c;
   // Contract transaction response.
   return c.contract({
     abi: wagmiAbi,
