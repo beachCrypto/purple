@@ -197,9 +197,9 @@ app.frame('/join', async (c) => {
       </div>
     ),
     intents: [
-      <TextInput placeholder={`minimum bid ${minBid.toString()}`} />,
+      // <TextInput placeholder={`minimum bid ${minBid.toString()}`} />,
       <Button.Transaction target={`/mint`}>
-        Place bid
+        Bid {minBid.toString()}
       </Button.Transaction>,
       <Button action={`/`}>Back</Button>,
     ],
@@ -213,7 +213,7 @@ app.transaction('/mint', (c) => {
     chainId: 'eip155:8453',
     // chainId: 'eip155:84532',
     functionName: 'createBidWithReferral',
-    value: bidRaw,
+    value: BigInt(parseEther(minBid.toString())),
     args: [
       BigInt(token),
       '0x83f2af0f0ac4412f118b31f7dd596309b25b34dd',
