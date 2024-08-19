@@ -9,7 +9,7 @@ import { serveStatic } from 'frog/serve-static';
 import { env } from 'process';
 import { createPublicClient, http, formatEther } from 'viem';
 import { base } from 'viem/chains';
-import { wagmiAbi } from '../../../abi/wagmiAbi';
+import { wagmiAbi } from '../../abi/wagmiAbi';
 
 // Airstack API Token
 export interface Env {
@@ -227,19 +227,18 @@ app.frame('/join', (c) => {
   });
 });
 
-let auctionABI = require('../../../abi/abi.json');
-
-// console.log('abi', auctionABI);
-
 app.transaction('/mint', (c) => {
   // Contract transaction response.
   return c.contract({
-    abi: auctionABI,
+    abi: wagmiAbi,
     chainId: 'eip155:8453',
     // chainId: 'eip155:84532',
     functionName: 'createBidWithReferral',
     value: bidRaw,
-    args: [token, '0x83f2af0f0ac4412f118b31f7dd596309b25b34dd'],
+    args: [
+      BigInt(token),
+      '0x83f2af0f0ac4412f118b31f7dd596309b25b34dd',
+    ],
     // to: '0x03855976fcb91bf23110e2c425dcfb1ba0635b79',
     to: '0x73Ab6d816FB9FE1714E477C5a70D94E803b56576',
   });

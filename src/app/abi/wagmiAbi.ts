@@ -28,4 +28,14 @@ export const wagmiAbi = [
     stateMutability: 'view',
     type: 'function',
   },
+  {
+    inputs: [
+      { internalType: 'uint256', name: '_tokenId', type: 'uint256' },
+      { internalType: 'address', name: '_referral', type: 'address' },
+    ],
+    name: 'createBidWithReferral',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
 ] as const;
