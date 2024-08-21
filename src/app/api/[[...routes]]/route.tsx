@@ -206,21 +206,37 @@ app.frame('/join', async (c) => {
   });
 });
 
-app.transaction('/mint', (c) => {
+app.transaction('/mint', async (c) => {
   // Contract transaction response.
-  return c.contract({
-    abi: wagmiAbi,
-    chainId: 'eip155:8453',
-    // chainId: 'eip155:84532',
-    functionName: 'createBidWithReferral',
-    value: BigInt(parseEther(minBid.toString())),
-    args: [
-      BigInt(token),
-      '0x83f2af0f0ac4412f118b31f7dd596309b25b34dd',
-    ],
-    // to: '0x03855976fcb91bf23110e2c425dcfb1ba0635b79',
-    to: '0x73Ab6d816FB9FE1714E477C5a70D94E803b56576',
+  const balance = await client.getBalance({
+    address: c.address as `0x${string}`,
   });
+
+  if (BigInt(balance) < BigInt(parseEther(minBid.toString()))) {
+    return c.error({
+      message: 'Insufficient balance',
+    });
+  }
+
+  try {
+    return c.contract({
+      abi: wagmiAbi,
+      chainId: 'eip155:8453',
+      // chainId: 'eip155:84532',
+      functionName: 'createBidWithReferral',
+      value: BigInt(parseEther(minBid.toString())),
+      args: [
+        BigInt(token),
+        '0x83f2af0f0ac4412f118b31f7dd596309b25b34dd',
+      ],
+      // to: '0x03855976fcb91bf23110e2c425dcfb1ba0635b79',
+      to: '0x73Ab6d816FB9FE1714E477C5a70D94E803b56576',
+    });
+  } catch {
+    return c.error({
+      message: 'Transaction failed',
+    });
+  }
 });
 
 devtools(app, { serveStatic });
