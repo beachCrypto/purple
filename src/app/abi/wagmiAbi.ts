@@ -38,4 +38,11 @@ export const wagmiAbi = [
     stateMutability: 'payable',
     type: 'function',
   },
+  {
+    inputs: [],
+    name: 'settleCurrentAndCreateNewAuction',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
 ] as const;

@@ -10,6 +10,8 @@ import { env } from 'process';
 import { createPublicClient, http, formatEther } from 'viem';
 import { base } from 'viem/chains';
 import { wagmiAbi } from '../../abi/wagmiAbi';
+import { metaDataAbi } from '../../abi/metaDataAbi';
+import axios from 'axios';
 
 // Airstack API Token
 export interface Env {
@@ -17,6 +19,7 @@ export interface Env {
 }
 
 // contract variables
+let tokenURI: string;
 
 let auction: readonly [
   bigint,
@@ -61,40 +64,62 @@ const app = new Frog({
 export const runtime = 'edge';
 
 app.frame('/', async (c) => {
-  return c.res({
-    image: (
-      <div
-        style={{
-          alignItems: 'center',
-          background: 'purple',
-          display: 'flex',
-          flexDirection: 'column',
-          flexWrap: 'nowrap',
-          height: '100%',
-          justifyContent: 'center',
-          textAlign: 'center',
-          width: '100%',
-        }}
-      >
+  // Return tokenURI from Purple DAO
+  try {
+    tokenURI = await client.readContract({
+      address: '0x36B5fb1D96052abee2758d625dC000D6d7f21B3c',
+      abi: metaDataAbi,
+      functionName: 'tokenURI',
+      args: [BigInt(616)],
+    });
+  } catch {
+    return c.res({
+      image: (
         <div
           style={{
-            color: 'white',
-            fontSize: 60,
-            fontStyle: 'normal',
-            letterSpacing: '-0.025em',
-            lineHeight: 1.4,
-            marginTop: 30,
-            padding: '0 120px',
-            whiteSpace: 'pre-wrap',
+            alignItems: 'center',
+            background: 'purple',
+            display: 'flex',
+            flexDirection: 'column',
+            flexWrap: 'nowrap',
+            height: '100%',
+            justifyContent: 'center',
+            textAlign: 'center',
+            width: '100%',
           }}
         >
-          Purple
+          <div
+            style={{
+              color: 'white',
+              fontSize: 60,
+              fontStyle: 'normal',
+              letterSpacing: '-0.025em',
+              lineHeight: 1.4,
+              marginTop: 30,
+              padding: '0 120px',
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            Error, refresh frame
+          </div>
         </div>
-      </div>
-    ),
+      ),
+      // Resets the frame back to the initial/start URL.
+      intents: [<Button.Reset>Reset</Button.Reset>],
+    });
+  }
+
+  const purpleDaoToken = (await axios.get(tokenURI)).data;
+
+  console.log('purpleDaoToken', purpleDaoToken);
+
+  console.log('image', purpleDaoToken.image);
+
+  return c.res({
+    image: purpleDaoToken.image,
     intents: [
-      <Button action={`/more`} value="apple">
-        learn about purple dao
+      <Button action={`/join`} value="apple">
+        join purple dao
       </Button>,
     ],
   });
@@ -146,24 +171,75 @@ app.frame('/more', (c) => {
 });
 
 app.frame('/join', async (c) => {
-  // Return auction from Purple DAO
-  auction = await client.readContract({
-    address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
-    abi: wagmiAbi,
-    functionName: 'auction',
-  });
+  try {
+    // Return auction from Purple DAO
+    auction = await client.readContract({
+      address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
+      abi: wagmiAbi,
+      functionName: 'auction',
+    });
+  } catch {}
+
+  try {
+    minBidIncrementBigInt = await client.readContract({
+      address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
+      abi: wagmiAbi,
+      functionName: 'minBidIncrement',
+    });
+  } catch {}
 
   token = auction[0].toString();
   bidRaw = auction[1];
   bid = formatEther(auction[1]);
 
-  minBidIncrementBigInt = await client.readContract({
-    address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
-    abi: wagmiAbi,
-    functionName: 'minBidIncrement',
-  });
-
   minBid = Number(bid) / Number(minBidIncrementBigInt) + Number(bid);
+
+  // if auction is active show bid frame, else show
+
+  console.log('auction end', auction[4]);
+
+  console.log('time', Date.now());
+
+  if (Date.now() > auction[4] * 1000) {
+    return c.res({
+      image: (
+        <div
+          style={{
+            alignItems: 'center',
+            background: 'purple',
+            display: 'flex',
+            flexDirection: 'column',
+            flexWrap: 'nowrap',
+            height: '100%',
+            justifyContent: 'center',
+            textAlign: 'center',
+            width: '100%',
+          }}
+        >
+          <div
+            style={{
+              color: 'white',
+              fontSize: 60,
+              fontStyle: 'normal',
+              letterSpacing: '-0.025em',
+              lineHeight: 1.4,
+              marginTop: 30,
+              padding: '0 120px',
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            There are no active auctions, start the next one
+          </div>
+        </div>
+      ),
+      intents: [
+        <Button action={`/startAuction`}>Start next auction</Button>,
+        <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=start+the+next+purple+dao+auction+and+get+purple+pilled+-+frame+by+%40beachcrypto">
+          Share
+        </Button.Link>,
+      ],
+    });
+  }
 
   return c.res({
     image: (
@@ -201,9 +277,43 @@ app.frame('/join', async (c) => {
       <Button.Transaction target={`/mint`}>
         Bid {minBid.toString()}
       </Button.Transaction>,
-      <Button action={`/`}>Back</Button>,
+      <Button.Link href="https://nouns.build/dao/base/0x8de71d80ee2c4700bc9d4f8031a2504ca93f7088?referral=0x83f2af0F0aC4412F118B31f7dd596309B25b34Dd">
+        Auction
+      </Button.Link>,
+      <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=get+purple+pilled+-+frame+by+%40beachcrypto">
+        Share
+      </Button.Link>,
     ],
   });
+});
+
+app.transaction('/startAuction', async (c) => {
+  // Contract transaction response.
+  // const balance = await client.getBalance({
+  //   address: c.address as `0x${string}`,
+  // });
+
+  // if (BigInt(balance) < BigInt(parseEther(minBid.toString()))) {
+  //   return c.error({
+  //     message: 'Insufficient balance',
+  //   });
+  // }
+
+  try {
+    return c.contract({
+      abi: wagmiAbi,
+      chainId: 'eip155:8453',
+      // chainId: 'eip155:84532',
+      functionName: 'settleCurrentAndCreateNewAuction',
+      args: [],
+      // to: '0x03855976fcb91bf23110e2c425dcfb1ba0635b79',
+      to: '0x73Ab6d816FB9FE1714E477C5a70D94E803b56576',
+    });
+  } catch {
+    return c.error({
+      message: 'Transaction failed',
+    });
+  }
 });
 
 app.transaction('/mint', async (c) => {

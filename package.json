@@ -15,6 +15,7 @@
     "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts"
   },
   "dependencies": {
+    "axios": "^1.7.5",
     "frog": "latest",
     "hono": "^4",
     "next": "14.2.5",
