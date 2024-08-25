@@ -323,7 +323,30 @@ app.transaction('/startAuction', async (c) => {
 });
 
 app.transaction('/mint', async (c) => {
-  let address = c.address as `0x${string}`;
+  try {
+    // Return auction from Purple DAO
+    auction = await client.readContract({
+      address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
+      abi: wagmiAbi,
+      functionName: 'auction',
+    });
+  } catch {}
+
+  try {
+    minBidIncrementBigInt = await client.readContract({
+      address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
+      abi: wagmiAbi,
+      functionName: 'minBidIncrement',
+    });
+  } catch {}
+
+  token = auction[0].toString();
+  bidRaw = auction[1];
+  bid = formatEther(auction[1]);
+
+  minBid = Number(bid) / Number(minBidIncrementBigInt) + Number(bid);
+
+  let address = c.address;
   // Contract transaction response.
   const balance = await client.getBalance({
     address: c.address as `0x${string}`,
@@ -342,7 +365,10 @@ app.transaction('/mint', async (c) => {
       // chainId: 'eip155:84532',
       functionName: 'createBidWithReferral',
       value: BigInt(parseEther(minBid.toString())),
-      args: [BigInt(token), address],
+      args: [
+        BigInt(token),
+        '0x83f2af0f0ac4412f118b31f7dd596309b25b34dd',
+      ],
       // to: '0x03855976fcb91bf23110e2c425dcfb1ba0635b79',
       to: '0x73Ab6d816FB9FE1714E477C5a70D94E803b56576',
     });
