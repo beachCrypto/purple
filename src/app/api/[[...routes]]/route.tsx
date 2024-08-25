@@ -302,6 +302,21 @@ app.transaction('/startAuction', async (c) => {
   // }
 
   try {
+    try {
+      // Return auction from Purple DAO
+      auction = await client.readContract({
+        address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
+        abi: wagmiAbi,
+        functionName: 'auction',
+      });
+    } catch {
+      return c.error({
+        message: 'Transaction failed',
+      });
+    }
+
+    token = auction[0].toString();
+
     return c.contract({
       abi: wagmiAbi,
       chainId: 'eip155:8453',
@@ -330,7 +345,11 @@ app.transaction('/mint', async (c) => {
       abi: wagmiAbi,
       functionName: 'auction',
     });
-  } catch {}
+  } catch {
+    return c.error({
+      message: 'Could not read contract',
+    });
+  }
 
   try {
     minBidIncrementBigInt = await client.readContract({
@@ -338,7 +357,11 @@ app.transaction('/mint', async (c) => {
       abi: wagmiAbi,
       functionName: 'minBidIncrement',
     });
-  } catch {}
+  } catch {
+    return c.error({
+      message: 'Could not read contract',
+    });
+  }
 
   token = auction[0].toString();
   bidRaw = auction[1];
@@ -374,7 +397,7 @@ app.transaction('/mint', async (c) => {
     });
   } catch {
     return c.error({
-      message: 'Transaction failed',
+      message: 'Could not create bid',
     });
   }
 });
