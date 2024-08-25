@@ -70,7 +70,7 @@ app.frame('/', async (c) => {
       address: '0x36B5fb1D96052abee2758d625dC000D6d7f21B3c',
       abi: metaDataAbi,
       functionName: 'tokenURI',
-      args: [BigInt(616)],
+      args: [BigInt(617)],
     });
   } catch {
     return c.res({
