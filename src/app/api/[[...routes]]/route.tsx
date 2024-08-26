@@ -64,13 +64,32 @@ const app = new Frog({
 export const runtime = 'edge';
 
 app.frame('/', async (c) => {
+  try {
+    // Return auction from Purple DAO
+    auction = await client.readContract({
+      address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
+      abi: wagmiAbi,
+      functionName: 'auction',
+    });
+  } catch {}
+
+  try {
+    minBidIncrementBigInt = await client.readContract({
+      address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
+      abi: wagmiAbi,
+      functionName: 'minBidIncrement',
+    });
+  } catch {}
+
+  token = auction[0].toString();
+
   // Return tokenURI from Purple DAO
   try {
     tokenURI = await client.readContract({
       address: '0x36B5fb1D96052abee2758d625dC000D6d7f21B3c',
       abi: metaDataAbi,
       functionName: 'tokenURI',
-      args: [BigInt(617)],
+      args: [BigInt(token)],
     });
   } catch {
     return c.res({
@@ -125,51 +144,6 @@ app.frame('/', async (c) => {
   });
 });
 
-app.frame('/more', (c) => {
-  return c.res({
-    image: (
-      <div
-        style={{
-          alignItems: 'center',
-          background: 'purple',
-          display: 'flex',
-          flexDirection: 'column',
-          flexWrap: 'nowrap',
-          height: '100%',
-          justifyContent: 'center',
-          textAlign: 'center',
-          width: '100%',
-        }}
-      >
-        <div
-          style={{
-            color: 'white',
-            fontSize: 60,
-            fontStyle: 'normal',
-            letterSpacing: '-0.025em',
-            lineHeight: 1.4,
-            marginTop: 30,
-            padding: '0 120px',
-            whiteSpace: 'pre-wrap',
-          }}
-        >
-          Purple’s goal is to proliferate and expand the Farcaster
-          protocol and ecosystem.
-        </div>
-      </div>
-    ),
-    intents: [
-      <Button action={`/join`}>Join</Button>,
-      <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=get+purple+pilled+-+frame+by+%40pichi+and+%40beachcrypto">
-        Share
-      </Button.Link>,
-      <Button.Link href="https://nouns.build/dao/base/0x8de71d80ee2c4700bc9d4f8031a2504ca93f7088?referral=0x83f2af0F0aC4412F118B31f7dd596309B25b34Dd">
-        Auction
-      </Button.Link>,
-    ],
-  });
-});
-
 app.frame('/join', async (c) => {
   try {
     // Return auction from Purple DAO
@@ -195,10 +169,6 @@ app.frame('/join', async (c) => {
   minBid = Number(bid) / Number(minBidIncrementBigInt) + Number(bid);
 
   // if auction is active show bid frame, else show
-
-  console.log('auction end', auction[4]);
-
-  console.log('time', Date.now());
 
   if (Date.now() > auction[4] * 1000) {
     return c.res({
@@ -282,7 +252,7 @@ app.frame('/join', async (c) => {
       <Button.Link href="https://nouns.build/dao/base/0x8de71d80ee2c4700bc9d4f8031a2504ca93f7088?referral=0x83f2af0F0aC4412F118B31f7dd596309B25b34Dd">
         Auction
       </Button.Link>,
-      <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=get+purple+pilled+-+frame+by+%40beachcrypto">
+      <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=Get+Purple+pilled!+Start+or+bid+on+Purple+Dao+auctions+from+the+feed+-+frame+by+%40beachcrypto">
         Share
       </Button.Link>,
     ],
