@@ -20,6 +20,7 @@ export interface Env {
 
 // contract variables
 let tokenURI: string;
+const reservePrice = formatEther(parseEther('.05'));
 
 let auction: readonly [
   bigint,
@@ -166,7 +167,12 @@ app.frame('/join', async (c) => {
   bidRaw = auction[1];
   bid = formatEther(auction[1]);
 
-  minBid = Number(bid) / Number(minBidIncrementBigInt) + Number(bid);
+  if (bidRaw === BigInt(0)) {
+    minBid = Number(reservePrice);
+  } else {
+    minBid =
+      Number(bid) / Number(minBidIncrementBigInt) + Number(bid);
+  }
 
   // if auction is active show bid frame, else show
 
@@ -321,7 +327,7 @@ app.transaction('/mint', async (c) => {
   minBid = Number(bid) / Number(minBidIncrementBigInt) + Number(bid);
 
   let address = c.address;
-  // Contract transaction response.
+  // Contract transaction response
   const balance = await client.getBalance({
     address: c.address as `0x${string}`,
   });
