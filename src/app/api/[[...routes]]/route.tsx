@@ -48,6 +48,7 @@ const app = new Frog({
     fetchOptions: {
       headers: {
         'x-airstack-hubs': env.AIRSTACK_API_TOKEN ?? '',
+        'cache-control': 'max-age=0',
       },
     },
   },
@@ -131,10 +132,6 @@ app.frame('/', async (c) => {
 
   const purpleDaoToken = (await axios.get(tokenURI)).data;
 
-  console.log('purpleDaoToken', purpleDaoToken);
-
-  console.log('image', purpleDaoToken.image);
-
   return c.res({
     image: purpleDaoToken.image,
     intents: [
@@ -212,7 +209,7 @@ app.frame('/join', async (c) => {
         <Button.Transaction target={`/startAuction`}>
           Start next auction
         </Button.Transaction>,
-        <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=start+the+next+purple+dao+auction+and+get+purple+pilled+-+frame+by+%40beachcrypto">
+        <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=start+the+next+purple+dao+auction+and+get+purple+pilled+-+frame+by+%40beachmfer.eth">
           Share
         </Button.Link>,
       ],
@@ -258,7 +255,7 @@ app.frame('/join', async (c) => {
       <Button.Link href="https://nouns.build/dao/base/0x8de71d80ee2c4700bc9d4f8031a2504ca93f7088?referral=0x83f2af0F0aC4412F118B31f7dd596309B25b34Dd">
         Auction
       </Button.Link>,
-      <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=Get+Purple+pilled!+Start+or+bid+on+Purple+Dao+auctions+from+the+feed+-+frame+by+%40beachcrypto">
+      <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=Get+Purple+pilled!+Start+or+bid+on+Purple+Dao+auctions+from+the+feed+-+frame+by+%40beachmfer.eth">
         Share
       </Button.Link>,
     ],
