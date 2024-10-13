@@ -19,7 +19,6 @@ export interface Env {
 }
 
 // contract variables
-let tokenURI: string;
 const reservePrice = formatEther(parseEther('.05'));
 
 let auction: readonly [
@@ -53,6 +52,7 @@ const app = new Frog({
     },
   },
   verify: 'silent',
+  browserLocation: '/',
   title: 'Purple Frames',
   assetsPath: '/',
   basePath: '/api',
@@ -65,15 +65,22 @@ const app = new Frog({
 
 export const runtime = 'edge';
 
-app.frame('/', async (c) => {
+async function getImage() {
   try {
-    // Return auction from Purple DAO
-    auction = await client.readContract({
-      address: '0x73ab6d816fb9fe1714e477c5a70d94e803b56576',
-      abi: wagmiAbi,
-      functionName: 'auction',
-    });
-  } catch {}
+    // Check if running in a browser environment
+    const baseUrl = 'https://purple-frames.pages.dev';
+    const response = await fetch(`${baseUrl}/api/thing`); // Use absolute URL
+    const data = await response.text();
+    // console.log('data', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching image:', error);
+    return null;
+  }
+}
+
+app.frame('/', async (c) => {
+  const imgURL = await getImage();
 
   try {
     minBidIncrementBigInt = await client.readContract({
@@ -83,57 +90,8 @@ app.frame('/', async (c) => {
     });
   } catch {}
 
-  token = auction[0].toString();
-
-  // Return tokenURI from Purple DAO
-  try {
-    tokenURI = await client.readContract({
-      address: '0x36B5fb1D96052abee2758d625dC000D6d7f21B3c',
-      abi: metaDataAbi,
-      functionName: 'tokenURI',
-      args: [BigInt(token)],
-    });
-  } catch {
-    return c.res({
-      image: (
-        <div
-          style={{
-            alignItems: 'center',
-            background: 'purple',
-            display: 'flex',
-            flexDirection: 'column',
-            flexWrap: 'nowrap',
-            height: '100%',
-            justifyContent: 'center',
-            textAlign: 'center',
-            width: '100%',
-          }}
-        >
-          <div
-            style={{
-              color: 'white',
-              fontSize: 60,
-              fontStyle: 'normal',
-              letterSpacing: '-0.025em',
-              lineHeight: 1.4,
-              marginTop: 30,
-              padding: '0 120px',
-              whiteSpace: 'pre-wrap',
-            }}
-          >
-            Error, refresh frame
-          </div>
-        </div>
-      ),
-      // Resets the frame back to the initial/start URL.
-      intents: [<Button.Reset>Reset</Button.Reset>],
-    });
-  }
-
-  const purpleDaoToken = (await axios.get(tokenURI)).data;
-
   return c.res({
-    image: purpleDaoToken.image,
+    image: imgURL || '',
     intents: [
       <Button action={`/join`} value="apple">
         join purple dao
