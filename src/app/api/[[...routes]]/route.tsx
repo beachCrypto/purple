@@ -68,7 +68,7 @@ export const runtime = 'edge';
 async function getImage() {
   try {
     // Check if running in a browser environment
-    const baseUrl = 'http://localhost:3000';
+    const baseUrl = 'https://purple-frames.pages.dev';
     const response = await fetch(`${baseUrl}/api/image`); // Use absolute URL
     const data = await response.text();
     // console.log('data', data);
