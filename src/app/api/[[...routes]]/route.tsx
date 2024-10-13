@@ -64,12 +64,14 @@ const app = new Frog({
 // export const runtime = 'edge'
 
 export const runtime = 'edge';
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 async function getImage() {
   try {
     // Check if running in a browser environment
     const baseUrl = 'https://purple-frames.pages.dev';
-    const response = await fetch(`${baseUrl}/api/image`); // Use absolute URL
+    const response = await fetch(`${baseUrl}/api/image`, { cache: 'no-store' }); // Use absolute URL
     const data = await response.text();
     // console.log('data', data);
     return data;
