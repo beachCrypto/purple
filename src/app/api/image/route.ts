@@ -3,7 +3,6 @@ import { getRequestContext } from '@cloudflare/next-on-pages';
 import { wagmiAbi } from '../../abi/wagmiAbi';
 import { metaDataAbi } from '@/app/abi/metaDataAbi';
 import axios from 'axios';
-import style from 'styled-jsx/style';
 import { createPublicClient, http } from 'viem';
 import { base } from 'viem/chains';
 
