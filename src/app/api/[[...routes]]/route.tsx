@@ -42,15 +42,15 @@ let minBidIncrementBigInt: bigint;
 let minBid: number;
 
 const app = new Frog({
-  hub: {
-    apiUrl: 'https://hubs.airstack.xyz',
-    fetchOptions: {
-      headers: {
-        'x-airstack-hubs': env.AIRSTACK_API_TOKEN ?? '',
-        'cache-control': 'max-age=0',
-      },
-    },
-  },
+  // hub: {
+  //   apiUrl: 'https://hubs.airstack.xyz',
+  //   fetchOptions: {
+  //     headers: {
+  //       'x-airstack-hubs': env.AIRSTACK_API_TOKEN ?? '',
+  //       'cache-control': 'max-age=0',
+  //     },
+  //   },
+  // },
   verify: 'silent',
   browserLocation: '/',
   title: 'Purple Frames',
@@ -66,6 +66,10 @@ const app = new Frog({
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+
+const now = Date.now();
+
+let shareURL = `https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi?${now}&text=start+the+next+purple+dao+auction+and+get+purple+pilled+-+frame+by+%40beachmfer.eth`
 
 async function getImage() {
   try {
@@ -168,7 +172,7 @@ app.frame('/join', async (c) => {
         <Button.Transaction target={`/startAuction`}>
           Start next auction
         </Button.Transaction>,
-        <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=start+the+next+purple+dao+auction+and+get+purple+pilled+-+frame+by+%40beachmfer.eth">
+        <Button.Link href={shareURL}>
           Share
         </Button.Link>,
       ],
@@ -214,7 +218,7 @@ app.frame('/join', async (c) => {
       <Button.Link href="https://nouns.build/dao/base/0x8de71d80ee2c4700bc9d4f8031a2504ca93f7088?referral=0x83f2af0F0aC4412F118B31f7dd596309B25b34Dd">
         Auction
       </Button.Link>,
-      <Button.Link href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fpurple-frames.pages.dev%2Fapi&text=Get+Purple+pilled!+Start+or+bid+on+Purple+Dao+auctions+from+the+feed+-+frame+by+%40beachmfer.eth">
+      <Button.Link href={shareURL}>
         Share
       </Button.Link>,
     ],
